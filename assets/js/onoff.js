@@ -10,44 +10,81 @@ var bgPrimaryReverse = '#000';
 var objectColor = '#e5e5e5';
 var objectColorReverse = '#333';
 
-// LEVEL
-var level = 1;
+// SPPED
+px = 8;
+py = -8;
 
 // HERO
 var hero = {
   x: 50,
-  y: 50
+  y: 50,
+  radius: 20
 };
+
+// STAR
+var star = {}
 
 // SHAPE
 var shapes = [];
 var reverseShapes = [];
 
+// LEVEL
+var level = 1;
+switch (level) {
+  case 1:
+    hero = {
+      x: 50,
+      y: 50,
+      radius: 20
+    };
+    shapes = [
+      // {
+      //   x: 0,
+      //   y: canvas.height / 2,
+      //   w: canvas.width / 2 * 0.85,
+      //   h: canvas.height / 2,
+      //   c: objectColorReverse
+      // },
+      // {
+      //   x: canvas.width - (canvas.width / 2 * 0.85),
+      //   y: canvas.height / 2,
+      //   w: canvas.width / 2 * 0.85,
+      //   h: canvas.height / 2,
+      //   c: objectColorReverse
+      // },
+      // {
+      //   x: canvas.width/2 + 100,
+      //   y: canvas.height / 1.5,
+      //   w: 200,
+      //   h: canvas.height / 2,
+      //   c: objectColorReverse
+      // },
+      {
+        x: canvas.width/2 - 200,
+        y: canvas.height / 2 - 100 ,
+        w: 200,
+        h: 100,
+        c: objectColorReverse
+      }
+    ];
+    break;
+  default:
+    break;
+}
+
 // KEY CONTROL
-var upPressed = false;
-var rightPressed = false;
-var leftPressed = false;
+let keysPressed = {};
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
-function keyDownHandler(e) {
-  if (e.key == "Right" || e.key == "ArrowRight") {
-    rightPressed = true;
-  } else if (e.key == "Left" || e.key == "ArrowLeft") {
-    leftPressed = true;
-  } else if (e.key == "Up" || e.key == "ArrowUp") {
-    upPressed = true;
-  }
-}
+function setupKeyboardListeners() {
+  document.addEventListener('keydown', function (e) {
+    keysPressed[e.key] = true;
+  }, false);
 
-function keyUpHandler(e) {
-  if (e.key == "Right" || e.key == "ArrowRight") {
-    rightPressed = false;
-  } else if (e.key == "Left" || e.key == "ArrowLeft") {
-    leftPressed = false;
-  } else if (e.key == "Up" || e.key == "ArrowUp") {
-    upPressed = false;
-  }
+  document.addEventListener('keyup', function (e) {
+    keysPressed[e.key] = false;
+  }, false);
 }
 
 function drawCanvas(color) {
@@ -63,54 +100,33 @@ function drawShape(x, y, w, h, c) {
   ctx.closePath();
 }
 
-function drawHeroPosition() {
+function drawHero() {
   ctx.beginPath();
-  ctx.arc(hero.x, hero.y, 20, 0, Math.PI * 2);
+  ctx.arc(hero.x, hero.y, hero.radius, 0, Math.PI * 2);
   ctx.fillStyle = objectColorReverse;
   ctx.fill();
   ctx.closePath();
 }
 
 function drawLevel() {
-  switch (level) {
-    case 1:
-      drawCanvas(bgPrimary);
-      drawShape(0, canvas.height / 2, (canvas.width / 2) * 0.85, canvas.height / 2, objectColorReverse);
-      drawShape(canvas.width - ((canvas.width / 2) * 0.85), canvas.height / 2, (canvas.width / 2) * 0.85, canvas.height / 2, objectColorReverse);
-      drawHeroPosition();
-      break;
-    default:
-      break;
-  }
+  drawCanvas(bgPrimary);
+  shapes.forEach((shape) => {
+    drawShape(shape.x, shape.y, shape.w, shape.h, shape.c);
+  });
+  // drawShape(0, canvas.height / 2, (canvas.width / 2) * 0.85, canvas.height / 2, objectColorReverse);
+  // drawShape(canvas.width - ((canvas.width / 2) * 0.85), canvas.height / 2, (canvas.width / 2) * 0.85, canvas.height / 2, objectColorReverse);
+  drawHero();
 }
 
 function main() {
   drawLevel();
-  if (rightPressed) {
-    hero.x += 7;
-    if(upPressed) {
-      hero.y -= 16;
-    }
-  } else if (leftPressed) {
-    hero.x -= 7;
-    if(upPressed) {
-      hero.y -= 16;
-    }
-  } else if (upPressed) {
-    hero.y -= 16;
-    if(rightPressed) {
-      hero.x += 7;
-    } else if(leftPressed) {
-      hero.x -= 7;
-    }
-  }
 
-  if(!upPressed) {
-    hero.y += 8;
-    if(hero.y > canvas.height / 2 - 40) {
-      hero.y = canvas.height / 2 - 20;
+
+  shapes.forEach((shape) => {
+    if(hero.x - hero.radius > canvas.width - shape.x) {
+      console.log("a")
     }
-  }
+  });
 
   requestAnimationFrame(main);
 }
