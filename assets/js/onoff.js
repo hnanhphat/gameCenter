@@ -73,18 +73,123 @@ var shapes = [{
 }];
 
 // SCORE
-score = 0;
-highScore = 0;
-death = 0;
-timing = 5;
+let isOver = false;
+let timer;
+let elapsedTime = 0;
+let score = 0;
+let maxScore = 0;
+const TIMING = 10;
 showLevel = document.getElementById('level');
 showScore = document.getElementById('score');
-showHighCore = document.getElementById('highScore');
-showDeath = document.getElementById('death');
 showTime = document.getElementById('time');
+
+// High Score
+let currentUser = [];
+let newUser = { user: '', score: 0 };
+let highScore = localStorage.getItem("highScore");
+showHighCore = document.getElementById('highScore');
 
 // LEVEL
 var level = 1;
+
+function switchLevel(currentLevel) {
+  switch (currentLevel) {
+    case 1:
+      hero = {
+        x: 50,
+        y: canvas.height / 2,
+        radius: 20,
+        s: 0,
+        c: objectColorReverse
+      };
+      shapes = [{
+        x: canvas.width / 2 - 10,
+        y: 0,
+        w: 20,
+        h: canvas.height,
+        c: objectColorReverse,
+        s: 0
+      }, {
+        x: canvas.width / 2 - 160,
+        y: 0,
+        w: 20,
+        h: canvas.height,
+        c: objectColor,
+        s: 1
+      }, {
+        x: canvas.width / 2 - 310,
+        y: 0,
+        w: 20,
+        h: canvas.height,
+        c: objectColorReverse,
+        s: 0
+      }, {
+        x: canvas.width / 2 + 140,
+        y: 0,
+        w: 20,
+        h: canvas.height,
+        c: objectColor,
+        s: 1
+      }, {
+        x: canvas.width / 2 + 290,
+        y: 0,
+        w: 20,
+        h: canvas.height,
+        c: objectColorReverse,
+        s: 0
+      }];
+      star = {
+        x: canvas.width - 80,
+        y: canvas.height / 2,
+        c: objectColorReverse
+      }
+      break;
+    case 2:
+      star.x = 50;
+      star.y = 50;
+      break;
+    case 3:
+      star.x = canvas.width - 75;
+      star.y = 50;
+      break;
+    case 4:
+      star.x = canvas.width / 2 - 25;
+      star.y = canvas.height - 25;
+      shapes = [{
+        x: 0,
+        y: canvas.height / 2 - 10,
+        w: canvas.width,
+        h: 20,
+        c: objectColorReverse,
+        s: 0
+      }, {
+        x: 0,
+        y: canvas.height / 2 - 160,
+        w: canvas.width,
+        h: 20,
+        c: objectColor,
+        s: 1
+      }, {
+        x: 0,
+        y: canvas.height / 2 + 140,
+        w: canvas.width,
+        h: 20,
+        c: objectColor,
+        s: 1
+      }];
+      break;
+    case 5:
+      star.x = canvas.width / 2,
+        star.y = 50
+      break;
+    case 6:
+      star.x = canvas.width / 2,
+        star.y = 50
+      break;
+    default:
+      break;
+  }
+}
 
 // KEY CONTROL
 let keysPressed = {};
@@ -113,57 +218,59 @@ function keyListeners() {
 }
 
 function keysPressing() {
-  if (keysPressed['ArrowUp']) {
-    hero.y -= speedyt;
-    if (hero.y - hero.radius < 0) {
-      hero.y = hero.radius;
-    }
-    shapes.forEach((shape) => {
-      if (hero.s == shape.s) {
-        if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
-          hero.y = shape.y + shape.h + hero.radius;
-        }
+  if (isOver == false) {
+    if (keysPressed['ArrowUp']) {
+      hero.y -= speedyt;
+      if (hero.y - hero.radius < 0) {
+        hero.y = hero.radius;
       }
-    });
-  }
-  if (keysPressed['ArrowDown']) {
-    hero.y += speedyb;
-    if (hero.y + hero.radius > canvas.height) {
-      hero.y = canvas.height - hero.radius;
-    }
-    shapes.forEach((shape) => {
-      if (hero.s == shape.s) {
-        if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
-          hero.y = shape.y - hero.radius;
+      shapes.forEach((shape) => {
+        if (hero.s == shape.s) {
+          if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
+            hero.y = shape.y + shape.h + hero.radius;
+          }
         }
-      }
-    });
-  }
-  if (keysPressed['ArrowLeft']) {
-    hero.x -= speedxl;
-    if (hero.x - hero.radius < 0) {
-      hero.x = hero.radius;
+      });
     }
-    shapes.forEach((shape) => {
-      if (hero.s == shape.s) {
-        if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
-          hero.x = shape.x + shape.w + hero.radius;
-        }
+    if (keysPressed['ArrowDown']) {
+      hero.y += speedyb;
+      if (hero.y + hero.radius > canvas.height) {
+        hero.y = canvas.height - hero.radius;
       }
-    });
-  }
-  if (keysPressed['ArrowRight']) {
-    hero.x += speedxr;
-    if (hero.x + hero.radius > canvas.width) {
-      hero.x = canvas.width - hero.radius;
+      shapes.forEach((shape) => {
+        if (hero.s == shape.s) {
+          if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
+            hero.y = shape.y - hero.radius;
+          }
+        }
+      });
     }
-    shapes.forEach((shape) => {
-      if (hero.s == shape.s) {
-        if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
-          hero.x = shape.x - hero.radius;
-        }
+    if (keysPressed['ArrowLeft']) {
+      hero.x -= speedxl;
+      if (hero.x - hero.radius < 0) {
+        hero.x = hero.radius;
       }
-    });
+      shapes.forEach((shape) => {
+        if (hero.s == shape.s) {
+          if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
+            hero.x = shape.x + shape.w + hero.radius;
+          }
+        }
+      });
+    }
+    if (keysPressed['ArrowRight']) {
+      hero.x += speedxr;
+      if (hero.x + hero.radius > canvas.width) {
+        hero.x = canvas.width - hero.radius;
+      }
+      shapes.forEach((shape) => {
+        if (hero.s == shape.s) {
+          if (hero.x + hero.radius > shape.x && hero.x - hero.radius < shape.x + shape.w && hero.y + hero.radius > shape.y && hero.y - hero.radius < shape.y + shape.h) {
+            hero.x = shape.x - hero.radius;
+          }
+        }
+      });
+    }
   }
 }
 
@@ -217,19 +324,41 @@ function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
 }
 
 function updateObject() {
-  // console.log(star.x, hero.x)
   if (hero.x + hero.radius >= star.x - 25 && hero.x - hero.radius <= star.x + 25 && hero.y + hero.radius >= star.y - 25 && hero.y - hero.radius <= star.y + 25) {
-    star.x = 50;
-    star.y = 50;
-    score++;
     level++;
+    score++;
+    switchLevel(level);
   }
 
   showLevel.innerHTML = `Level: ${level}`;
   showScore.innerHTML = `Score: ${score}`;
   showHighCore.innerHTML = `HighCore: ${highScore}`;
-  showDeath.innerHTML = `Death: ${death}`;
-  showTime.innerHTML = `Timing: ${timing - Math.floor((Date.now() - Date.now()) / 1000)}`;
+
+  if (TIMING - elapsedTime == 0) {
+    document.getElementById('gameStatus').innerHTML = "Game Over!";
+    document.getElementById('restart').classList.remove('d-n');
+    isOver = true;
+    if(highScore <= score) {
+      highScore = score;
+      localStorage.setItem('highScore', JSON.stringify(highScore));
+    }
+    newUser.score = score;
+    // currentUser.push(newUser);
+    localStorage.setItem('player', JSON.stringify(newUser));
+    stopTime();
+  }
+}
+
+function startTime() {
+  document.getElementById("time").innerHTML = `Timing: ${TIMING}`;
+  timer = setInterval(() => {
+    elapsedTime += 1;
+    document.getElementById("time").innerHTML = `Timing: ${TIMING - elapsedTime}`;
+  }, 1000);
+}
+
+function stopTime() {
+  clearInterval(timer);
 }
 
 // ALL
@@ -253,6 +382,7 @@ function main() {
 // main();
 
 function createInfo() {
+  showHighCore.innerHTML = `HighCore: ${highScore}`;
   nameUser = document.getElementById('nameUser');
   gameStarting = true;
   nameInputed = false
@@ -264,6 +394,11 @@ function createInfo() {
         this.value = 'Anonymous'
         nameUser.innerHTML = `Hello, ${this.value}`;
       }
+      newUser.user = this.value;
+      if(localStorage.getItem('player')) {
+        currentUser.push(JSON.parse(localStorage.getItem('player')));
+      }
+      console.log(currentUser);
       this.value = '';
       nameInputed = true;
     }
@@ -275,17 +410,17 @@ function createInfo() {
       if (gameStarting && nameInputed) {
         keyListeners();
         main();
+        startTime();
         gameStarting = false;
       }
-      // else {
-      //   alert('Please input your name!')
-      // }
     });
   }
 
   btnRestart = document.getElementById('restart');
   if (btnRestart) {
-
+    btnRestart.addEventListener('click', function () {
+      location.reload();
+    });
   }
 }
 createInfo();

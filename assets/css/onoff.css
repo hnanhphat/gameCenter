@@ -28,7 +28,8 @@ body {
 #info {
   width: 100%;
   text-align: center;
-  margin-bottom: 50px;
+  padding-bottom: 100px;
+  position: relative;
 }
 
 h1 {
@@ -47,6 +48,30 @@ button {
   margin: 0 5px;
 }
 
-#start {
+#gameStatus {
+  position: absolute;
+  width: 100%;
+  bottom: 0px;
+  left: 0;
+  font-size: 30px;
+  text-transform: uppercase;
+}
 
+.howto {
+  width: 100%;
+  text-align: center;
+}
+
+.d-n {
+  display: none;
+}
+
+#history {
+  border: 5px solid #333;
+  width: 300px;
+  height: 150px;
+  position: fixed;
+  top: 90px;
+  left: 10px;
+  overflow: auto;
 }
