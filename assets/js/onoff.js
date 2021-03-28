@@ -1,8 +1,8 @@
 // CANVAS
 var canvas = document.getElementById("onoff");
 var ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth * 0.8;
-canvas.height = window.innerHeight * 0.8;
+canvas.width = window.innerWidth * 0.6;
+canvas.height = window.innerHeight * 0.6;
 
 // COLOR
 var bgPrimary = '#fff';
@@ -19,84 +19,72 @@ var speedyt = 5;
 var speedyb = 5;
 
 // HERO
-var hero = { c: objectColorReverse };
+var hero = {
+  x: 50,
+  y: canvas.height / 2,
+  radius: 20,
+  s: 0,
+  c: objectColorReverse
+};
 
 // STAR
-var star = { c: objectColorReverse }
+var star = {
+  x: canvas.width - 80,
+  y: canvas.height / 2,
+  c: objectColorReverse
+}
 
 // SHAPE
-var shapes = [];
-var reverseShapes = [];
+var shapes = [{
+  x: canvas.width / 2 - 10,
+  y: 0,
+  w: 20,
+  h: canvas.height,
+  c: objectColorReverse,
+  s: 0
+}, {
+  x: canvas.width / 2 - 160,
+  y: 0,
+  w: 20,
+  h: canvas.height,
+  c: objectColor,
+  s: 1
+}, {
+  x: canvas.width / 2 - 310,
+  y: 0,
+  w: 20,
+  h: canvas.height,
+  c: objectColorReverse,
+  s: 0
+}, {
+  x: canvas.width / 2 + 140,
+  y: 0,
+  w: 20,
+  h: canvas.height,
+  c: objectColor,
+  s: 1
+}, {
+  x: canvas.width / 2 + 290,
+  y: 0,
+  w: 20,
+  h: canvas.height,
+  c: objectColorReverse,
+  s: 0
+}];
 
 // SCORE
 score = 0;
+highScore = 0;
 death = 0;
 timing = 5;
+showLevel = document.getElementById('level');
+showScore = document.getElementById('score');
+showHighCore = document.getElementById('highScore');
+showDeath = document.getElementById('death');
+showTime = document.getElementById('time');
 
 // LEVEL
 var level = 1;
-switch (level) {
-  case 1:
-    hero = {
-      x: 50,
-      y: canvas.height / 2,
-      radius: 20,
-      s: 0,
-    };
-    shapes = [{
-      x: canvas.width / 2 - 10,
-      y: 0,
-      w: 20,
-      h: canvas.height,
-      c: objectColorReverse,
-      s: 0
-    }, {
-      x: canvas.width / 2 - 160,
-      y: 0,
-      w: 20,
-      h: canvas.height,
-      c: objectColor,
-      s: 1
-    }, {
-      x: canvas.width / 2 - 310,
-      y: 0,
-      w: 20,
-      h: canvas.height,
-      c: objectColorReverse,
-      s: 0
-    }, {
-      x: canvas.width / 2 + 140,
-      y: 0,
-      w: 20,
-      h: canvas.height,
-      c: objectColor,
-      s: 1
-    }, {
-      x: canvas.width / 2 + 290,
-      y: 0,
-      w: 20,
-      h: canvas.height,
-      c: objectColorReverse,
-      s: 0
-    }];
-    star = {
-      x: canvas.width - 80,
-      y: canvas.height / 2
-    };
-    break;
-  default:
-    break;
-}
-
-// DETECTION
-// function collisionDetection(objectSpeed) {
-//   shapes.forEach((shape) => {});
-//   if (hero.x + hero.radius + speed > shape.x && hero.x - hero.radius - speed < shape.x + shape.w && hero.y + hero.radius + speed > shape.y && hero.y - hero.radius - speed < shape.y + shape.h) {
-//     objectSpeed = 0;
-//   } else {
-//     objectSpeed = 5;
-//   }
-// }
 
 // KEY CONTROL
 let keysPressed = {};
@@ -104,13 +92,13 @@ let keysPressed = {};
 function keyListeners() {
   document.addEventListener('keydown', function (e) {
     keysPressed[e.key] = true;
-    if(e.code == 'Space') {
-      if(hero.s == 1) {
+    if (e.code == 'Space') {
+      if (hero.s == 1) {
         canvasBg = bgPrimary;
         hero.s = 0;
         hero.c = objectColorReverse;
         star.c = objectColorReverse;
-      } else if(hero.s == 0) {
+      } else if (hero.s == 0) {
         canvasBg = bgPrimaryReverse;
         hero.s = 1;
         hero.c = objectColor;
@@ -228,18 +216,32 @@ function drawStar(cx, cy, spikes, outerRadius, innerRadius) {
   ctx.fill();
 }
 
+function updateObject() {
+  // console.log(star.x, hero.x)
+  if (hero.x + hero.radius >= star.x - 25 && hero.x - hero.radius <= star.x + 25 && hero.y + hero.radius >= star.y - 25 && hero.y - hero.radius <= star.y + 25) {
+    star.x = 50;
+    star.y = 50;
+    score++;
+    level++;
+  }
+
+  showLevel.innerHTML = `Level: ${level}`;
+  showScore.innerHTML = `Score: ${score}`;
+  showHighCore.innerHTML = `HighCore: ${highScore}`;
+  showDeath.innerHTML = `Death: ${death}`;
+  showTime.innerHTML = `Timing: ${timing - Math.floor((Date.now() - Date.now()) / 1000)}`;
+}
+
 // ALL
 function draw() {
   keysPressing();
+  updateObject();
   drawCanvas(canvasBg);
   shapes.forEach((shape) => {
     drawShape(shape.x, shape.y, shape.w, shape.h, shape.c);
   });
   drawHero();
   drawStar(star.x, star.y, 5, 25, 15);
-  ctx.fillText(`Score: ${score}`, 10, 10);
-  ctx.fillText(`Death: ${death}`, 60, 10);
-  ctx.fillText(`Timing: ${timing}`, 110, 10);
 }
 
 function main() {
@@ -247,5 +249,43 @@ function main() {
   requestAnimationFrame(main);
 }
 
-keyListeners();
-main();
+// keyListeners();
+// main();
+
+function createInfo() {
+  nameUser = document.getElementById('nameUser');
+  gameStarting = true;
+  nameInputed = false
+  document.getElementById('username').addEventListener('keydown', function (e) {
+    if (e.key == 'Enter') {
+      if (this.value) {
+        nameUser.innerHTML = `Hello, ${this.value}`;
+      } else {
+        this.value = 'Anonymous'
+        nameUser.innerHTML = `Hello, ${this.value}`;
+      }
+      this.value = '';
+      nameInputed = true;
+    }
+  });
+
+  btnStart = document.getElementById('start');
+  if (btnStart) {
+    btnStart.addEventListener('click', function () {
+      if (gameStarting && nameInputed) {
+        keyListeners();
+        main();
+        gameStarting = false;
+      }
+      // else {
+      //   alert('Please input your name!')
+      // }
+    });
+  }
+
+  btnRestart = document.getElementById('restart');
+  if (btnRestart) {
+
+  }
+}
+createInfo();
